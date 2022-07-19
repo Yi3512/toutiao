@@ -19,12 +19,23 @@ export const getAllChannels = () => {
     url: '/v1_0/channels'
   })
 }
+/**
+ * 删除用户频道
+ * @param {String|Number} target 删除用户频道的id
+ * @returns Promise
+ */
 export const delMyChannel = (target) => {
   return request({
     url: `/v1_0/user/channels/${target}`,
     method: 'DELETE'
   })
 }
+/**
+ * 添加我的频道
+ * @param {Number} id 频道的id
+ * @param {Number} seq 添加频道的索引下标
+ * @returns
+ */
 export const addMyChannel = (id, seq) => {
   return request({
     url: '/v1_0/user/channels',

@@ -2,7 +2,7 @@
   <van-popup
     v-model="isShow"
     position="bottom"
-    :style="{ height: '100%' }"
+    :style="{ height: '90%' }"
     closeable
     close-icon-position="top-left"
   >
@@ -15,10 +15,10 @@
         <van-grid :border="false" gutter="20px">
           <van-grid-item
             :text="item.name"
-            v-for="item in myChannels"
+            v-for="(item, index) in myChannels"
             :key="item.id"
             :class="{'active-channel': item.name === '推荐'}"
-            @click="onClickMyChannel(item)"
+            @click="onClickMyChannel(item,index)"
           >
             <template #icon>
               <van-icon v-show="isEdit && item.name !== '推荐'" name="cross" />
@@ -67,7 +67,6 @@ export default {
     async getAllChannels () {
       const { data } = await getAllChannels()
       this.allChannels = data.data.channels
-      console.log(this.allChannels)
     },
     onClickMyChannel (channel, index) {
       if (this.isEdit && channel.name !== '推荐') {

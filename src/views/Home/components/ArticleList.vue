@@ -1,9 +1,12 @@
 <template>
   <div>
-    <van-pull-refresh  v-model="refreshLoading" @refresh='onLoad' success-text="刷新成功" >
-          <van-list
+    <van-pull-refresh
+    v-model="refreshLoading"
+    @refresh='onLoad'
+    success-text="刷新成功" >
+
+      <van-list
       @load="onLoad"
-      offset="1"
       :immediate-check="false"
       v-model="loading"
       :finished="finished"
@@ -76,7 +79,7 @@ export default {
         } else {
           this.articles.push(...data.data.results)
         }
-        this.articles.push(...data.data.results)
+
         this.pre_timestamp = data.data.pre_timestamp
       } catch (error) {
         this.error = true

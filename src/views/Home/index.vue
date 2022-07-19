@@ -1,20 +1,25 @@
 <template>
   <div>
+    <!-- 头部导航 -->
     <van-nav-bar class="navbar">
       <template #title>
         <van-button round> <van-icon name="search" @click="$router.push('/search')"/>搜索</van-button>
       </template>
     </van-nav-bar>
-
+    <!-- tabs选项卡 -->
     <van-tabs v-model="active" swipeable>
-      <van-tab v-for="item in MyChannels" :key="item.id" :title="item.name">
+      <van-tab v-for="item in myChannels" :key="item.id" :title="item.name">
+        <!-- 文章列表 -->
         <article-list :id="item.id"></article-list>
       </van-tab>
+      <!-- 更多的按钮 -->
       <span class="toutiao toutiao-gengduo" @click="showPopus"></span>
     </van-tabs>
+
+    <!-- 弹框 -->
     <edit-poput
       ref="popup"
-      :myChannels="MyChannels"
+      :myChannels="myChannels"
       @channge-active="channgeActive"
       @del-mychannel="delMyChannel"
       @add-mychannel="addMyChannel"
@@ -23,7 +28,6 @@
 </template>
 
 <script>
-import ArticleList from './components/ArticleList.vue'
 import {
   addMyChannel,
   getChannels,
@@ -31,6 +35,7 @@ import {
   setMyChannelTolocal,
   delMyChannel
 } from '@/api'
+import ArticleList from './components/ArticleList.vue'
 import EditPoput from './components/EditPoput.vue'
 export default {
   name: 'Home',
@@ -40,31 +45,29 @@ export default {
   },
   data () {
     return {
-      active: 2,
-      MyChannels: []
+      active: 0,
+      myChannels: []
     }
   },
   created () {
     this.getChannel()
-    console.log(this.MyChannels)
-    console.log(this.isLogin)
-    console.log(getMyChannelsByLocal())
+  },
+  computed: {
+    isLogin () {
+      return !!this.$store.state.user.token
+    }
   },
   methods: {
-    showPopus () {
-      // console.log(1111)
-      this.$refs.popup.isShow = true
-    },
     async getChannel () {
       try {
         if (!this.isLogin) {
           // getMyChannelsByLocal()
           const myChannels = getMyChannelsByLocal()
           if (myChannels) {
-            this.MyChannels = myChannels
+            this.myChannels = myChannels
           } else {
             const { data } = await getChannels()
-            this.MyChannels = data.data.channels
+            this.myChannels = data.data.channels
           }
         }
         // console.log(this.MyChannels)
@@ -72,14 +75,18 @@ export default {
         this.$toast.fail('请重新获取频道')
       }
     },
+    showPopus () {
+      // console.log(1111)
+      this.$refs.popup.isShow = true
+    },
     async delMyChannel (id) {
-      this.MyChannels = this.MyChannels.filter((item) => item.id !== id)
+      this.myChannels = this.myChannels.filter((item) => item.id !== id)
       if (!this.isLogin) {
-        setMyChannelTolocal(this.MyChannels)
+        setMyChannelTolocal(this.myChannels)
       } else {
         try {
           await delMyChannel(id)
-        } catch (e) {
+        } catch (error) {
           return this.$toast.fail('删除用户频道失败')
         }
       }
@@ -89,22 +96,17 @@ export default {
       this.active = active
     },
     async addMyChannel (channel) {
-      this.MyChannels.push(channel)
+      this.myChannels.push(channel)
       if (!this.isLogin) {
-        setMyChannelTolocal(this.MyChannels)
+        setMyChannelTolocal(this.myChannels)
       } else {
         try {
-          await addMyChannel(channel.id, this.MyChannels.length)
+          await addMyChannel(channel.id, this.myChannels.length)
         } catch (error) {
           return this.$toast.fail('添加频道失败')
         }
       }
       this.$toast.success('添加频道成功')
-    }
-  },
-  computed: {
-    isLogin () {
-      return !!this.$store.state.user.token
     }
   }
 }
