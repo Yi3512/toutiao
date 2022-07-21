@@ -3,45 +3,51 @@
     <!-- 头部导航 -->
     <van-nav-bar class="navbar">
       <template #title>
-        <van-button round> <van-icon name="search" @click="$router.push('/search')"/>搜索</van-button>
+        <van-button round @click="$router.push('/search')">
+          <van-icon name="search" />搜索
+        </van-button>
       </template>
     </van-nav-bar>
+
     <!-- tabs选项卡 -->
     <van-tabs v-model="active" swipeable>
       <van-tab v-for="item in myChannels" :key="item.id" :title="item.name">
         <!-- 文章列表 -->
-        <article-list :id="item.id"></article-list>
+        <ArticleList :id="item.id"></ArticleList>
       </van-tab>
+
       <!-- 更多的按钮 -->
-      <span class="toutiao toutiao-gengduo" @click="showPopus"></span>
+      <span class="toutiao toutiao-gengduo" @click="showPopup"></span>
     </van-tabs>
 
     <!-- 弹框 -->
-    <edit-poput
+    <EditChannelPopup
       ref="popup"
       :myChannels="myChannels"
-      @channge-active="channgeActive"
-      @del-mychannel="delMyChannel"
+      @del-mychanel="delMychannel"
+      @change-active="changeActive"
       @add-mychannel="addMyChannel"
-    ></edit-poput>
+    ></EditChannelPopup>
   </div>
 </template>
 
 <script>
+// 引入API
 import {
-  addMyChannel,
-  getChannels,
+  getMyChannels,
   getMyChannelsByLocal,
-  setMyChannelTolocal,
-  delMyChannel
+  setMyChannelToLocal,
+  delMyChannel,
+  addMyChannel
 } from '@/api'
-import ArticleList from './components/ArticleList.vue'
-import EditPoput from './components/EditPoput.vue'
+// 引入组件
+import ArticleList from './component/ArticleList.vue'
+import EditChannelPopup from './component/EditChannelPopup.vue'
 export default {
   name: 'Home',
   components: {
     ArticleList,
-    EditPoput
+    EditChannelPopup
   },
   data () {
     return {
@@ -50,7 +56,8 @@ export default {
     }
   },
   created () {
-    this.getChannel()
+    // 获取我的频道列表
+    this.getMyChannels()
   },
   computed: {
     isLogin () {
@@ -58,32 +65,53 @@ export default {
     }
   },
   methods: {
-    async getChannel () {
+    // 获取我的频道列表
+    async getMyChannels () {
       try {
+        // const { data } = await getMyChannels()
+        // this.myChannels = data.data.channels
         if (!this.isLogin) {
-          // getMyChannelsByLocal()
+          // 如果是离线状态
           const myChannels = getMyChannelsByLocal()
+          //  - 1 如果本地存储有数据, 直接用本地存储的数据
           if (myChannels) {
             this.myChannels = myChannels
           } else {
-            const { data } = await getChannels()
+            //  - 2 如果本地存储没数据, 发送请求获取默认频道数据
+            const { data } = await getMyChannels()
             this.myChannels = data.data.channels
           }
+        } else {
+          // 如果是登录状态
+          // 发请求获取的
+          const { data } = await getMyChannels()
+          this.myChannels = data.data.channels
         }
-        // console.log(this.MyChannels)
       } catch (error) {
-        this.$toast.fail('请重新获取频道')
+        this.$toast.fail('请重新获取频道列表')
       }
     },
-    showPopus () {
-      // console.log(1111)
+    // 展示弹层
+    showPopup () {
+      // this.isShow = true
       this.$refs.popup.isShow = true
     },
-    async delMyChannel (id) {
+    // 更改频道的active
+    changeActive (active) {
+      this.active = active
+    },
+    // 删除我的频道
+    async delMychannel (id) {
+      // 删除我的频道
       this.myChannels = this.myChannels.filter((item) => item.id !== id)
+
       if (!this.isLogin) {
-        setMyChannelTolocal(this.myChannels)
+        // 如果你是离线状态
+        // 数据存储在本地存储中
+        setMyChannelToLocal(this.myChannels)
       } else {
+        // 如果你是登录状态
+        // 发送接口 删除频道
         try {
           await delMyChannel(id)
         } catch (error) {
@@ -92,27 +120,32 @@ export default {
       }
       this.$toast.success('删除用户频道成功')
     },
-    channgeActive (active) {
-      this.active = active
-    },
     async addMyChannel (channel) {
+      // 添加频道
       this.myChannels.push(channel)
+
       if (!this.isLogin) {
-        setMyChannelTolocal(this.myChannels)
+        // 如果你是离线状态
+        // 数据存储在本地存储中
+        setMyChannelToLocal(this.myChannels)
       } else {
+        // 如果你是登录状态
+        // 发送接口 添加频道
         try {
           await addMyChannel(channel.id, this.myChannels.length)
         } catch (error) {
           return this.$toast.fail('添加频道失败')
         }
       }
+
       this.$toast.success('添加频道成功')
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style scoped lang="less">
+// 头部导航
 .navbar {
   background-color: #3296fa;
   color: #fff;
@@ -134,7 +167,6 @@ export default {
     border: 0.02667rem solid #5babfb;
   }
 }
-
 //tabs选项卡
 :deep(.van-tabs__wrap) {
   padding-right: 66px;
@@ -165,6 +197,7 @@ export default {
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 99;
   width: 66px;
   height: 82px;
   font-size: 40px;
@@ -172,7 +205,6 @@ export default {
   text-align: center;
   opacity: 0.6;
   border-bottom: 1px solid #eee;
-  z-index: 999;
 
   &::after {
     content: '';
@@ -185,6 +217,7 @@ export default {
     background-image: url('~@/assets/images/gradient-gray-line.png');
   }
 }
+
 // 头部固定的样式
 .navbar {
   position: sticky;

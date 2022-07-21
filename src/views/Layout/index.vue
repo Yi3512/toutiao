@@ -1,6 +1,10 @@
 <template>
   <div>
-    <van-tabbar route >
+    <!-- 二级路由页面 -->
+    <router-view></router-view>
+
+    <!-- 底部 -->
+    <van-tabbar route>
       <van-tabbar-item to="/ ">
         <template #icon>
           <span class="toutiao toutiao-shouye"></span>
@@ -25,19 +29,20 @@
       <van-tabbar-item to="/profile">
         <template #icon>
           <span class="toutiao toutiao-wode"></span>
-          <span class="text">我的</span>
+          <span class="text">{{
+            !!$store.state.user.token ? '我的' : '未登录'
+          }}</span>
         </template>
       </van-tabbar-item>
     </van-tabbar>
-    <router-view></router-view>
   </div>
 </template>
 
 <script>
 export default {
+  name: 'Layout',
   data () {
-    return {
-    }
+    return {}
   }
 }
 </script>
@@ -48,6 +53,7 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
+
   height: 100%;
   .toutiao {
     font-size: 0.53333rem;

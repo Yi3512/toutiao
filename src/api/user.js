@@ -1,8 +1,7 @@
 import request from '@/utils/request'
-import store from '@/store'
 /**
  * 登录
- * @param {String} moblie 手机号
+ * @param {String} mobile 手机号
  * @param {String} code 验证码
  * @returns Promise
  */
@@ -15,7 +14,7 @@ export const login = (mobile, code) => {
 }
 /**
  * 发送验证码
- * @param {String} mobile
+ * @param {String} mobile 手机号
  * @returns Promise
  */
 export const sendCode = (mobile) => {
@@ -23,15 +22,14 @@ export const sendCode = (mobile) => {
     url: `/v1_0/sms/codes/${mobile}`
   })
 }
+
 /**
- * 请求用户信息
+ * 请求用户自己的信息
  * @returns Promise
  */
 export const getUserInfo = () => {
+  // url methods headers
   return request({
-    url: '/v1_0/user',
-    headers: {
-      Authorization: `Bearer ${store.state.user.token}`
-    }
+    url: '/v1_0/user'
   })
 }

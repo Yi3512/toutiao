@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- hearder -->
+    <!-- 头部搜索框 -->
     <form action="/">
       <van-search
         v-model="keywords"
@@ -9,18 +9,30 @@
         @search="onSearch"
         @cancel="backToPrePage"
         @focus="visibleSearchSuggestion"
+        background="#3296fa"
+        class="search"
       />
     </form>
 
-     <component :is="componentName" :keywords="keywords"></component>
+    <!-- 搜索历史/建议/结果 -->
+    <component
+      :is="componentName"
+      :keywords="keywords"
+      @search="onSearch"
+      :searchHistorlist="searchHistorlist"
+      @delAll="delall"
+      @delFn="delFn"
+    ></component>
   </div>
 </template>
 
 <script>
+// 引入组件
 import SearchHistory from './components/SearchHistory.vue'
 import SearchResult from './components/SearchResult.vue'
 import SearchSuggestion from './components/SearchSuggestion.vue'
 export default {
+  name: 'Search',
   components: {
     SearchHistory,
     SearchResult,
@@ -28,42 +40,72 @@ export default {
   },
   data () {
     return {
+      // 搜索关键词
       keywords: '',
-      isShowSearchResults: false
+      isShowSearchResult: false,
+      searchHistorlist: this.$store.state.History
     }
   },
   computed: {
     componentName () {
-      // 显示搜索历史
+      // 搜索结果: 搜索框没有值或者是空字符串
+      // 搜索结果: isShowSearchResult=ture
       if (this.keywords.trim() === '') {
         return 'SearchHistory'
-      } // 显示搜索结果
-      if (this.isShowSearchResults) {
-        return 'SearchResults'
-      } // 显示搜索建议
+      }
+
+      if (this.isShowSearchResult) {
+        return 'SearchResult'
+      }
+
       return 'SearchSuggestion'
     }
   },
   methods: {
-    onSearch () {
-      this.isShowSearchResults = true
-      console.log(123)
+    // 删除全部记录
+    delall () {
+      this.searchHistorlist = []
+      this.$store.commit('setSearchHistory', this.searchHistorlist)
     },
+    // 删除选中记录
+    delFn (index) {
+      this.searchHistorlist.splice(index, 1)
+      this.$store.commit('setSearchHistory', this.searchHistorlist)
+    },
+    // 搜索
+    onSearch (item) {
+      this.keywords = item
+
+      console.log('正在搜索')
+      const index = this.searchHistorlist.indexOf(item)
+      // console.log(index)
+      if (index !== -1) {
+        this.searchHistorlist.splice(index, 1)
+      }
+      this.searchHistorlist.unshift(item)
+      console.log(this.searchHistorlist)
+      this.$store.commit('setSearchHistory', this.searchHistorlist)
+      // 显示搜索结果
+      this.isShowSearchResult = true
+    },
+    // 返回上一页
     backToPrePage () {
       this.$router.go(-1)
     },
+    // 显示搜索建议
     visibleSearchSuggestion () {
-      this.isShowSearchSuggestions = false
+      // 如果keywords没有值 显示搜索历史
+      // 如果keywords有值 显示搜索建议
+      this.isShowSearchResult = false
     }
   }
 }
 </script>
 
 <style scoped lang="less">
-.van-search--show-action {
- background-color: #3296fa;
- .van-search__action {
- color: #fff;
- }
+.search {
+  [role='button'] {
+    color: #fff;
+  }
 }
 </style>

@@ -2,23 +2,33 @@
   <van-popup
     v-model="isShow"
     position="bottom"
-    :style="{ height: '90%' }"
+    :style="{ height: '100%' }"
     closeable
     close-icon-position="top-left"
   >
     <div class="popupMain">
+      <!-- 我的频道 -->
       <div class="my-channel">
+        <!-- 我的频道标题 -->
         <van-cell title="我的频道">
-          <van-button size="small" round class="edit-btn" @click="isEdit = !isEdit">{{isEdit ? '完成' : '编辑'}}</van-button>
+          <van-button
+            size="small"
+            round
+            class="edit-btn"
+            @click="isEdit = !isEdit"
+          >
+            {{ isEdit ? '完成' : '编辑' }}
+          </van-button>
         </van-cell>
+
         <!-- 我的频道 -->
-        <van-grid :border="false" gutter="20px">
+        <van-grid :border="false" gutter="10px">
           <van-grid-item
-            :text="item.name"
             v-for="(item, index) in myChannels"
             :key="item.id"
-            :class="{'active-channel': item.name === '推荐'}"
-            @click="onClickMyChannel(item,index)"
+            :text="item.name"
+            :class="{ 'active-channel': item.name === '推荐' }"
+            @click="onClickMyChannel(item, index)"
           >
             <template #icon>
               <van-icon v-show="isEdit && item.name !== '推荐'" name="cross" />
@@ -26,18 +36,22 @@
           </van-grid-item>
         </van-grid>
       </div>
+
       <!-- 推荐频道 -->
       <div class="recommend-channel">
-        <van-cell title="推荐频道"></van-cell>
+        <!-- 推荐频道的标题 -->
+        <van-cell title="推荐频道"> </van-cell>
+
         <!-- 推荐频道 -->
-        <van-grid :border="false" gutter="20px">
+        <van-grid :border="false" gutter="10px">
           <van-grid-item
-           v-for="item in recommendChannels"
+            v-for="item in recommendChannels"
             :key="item.id"
             :text="item.name"
             icon="plus"
             @click="addMyChannel(item)"
-          ></van-grid-item>
+          >
+          </van-grid-item>
         </van-grid>
       </div>
     </div>
@@ -45,6 +59,7 @@
 </template>
 
 <script>
+// 引入API
 import { getAllChannels } from '@/api'
 export default {
   props: {
@@ -60,84 +75,105 @@ export default {
     return {
       isShow: false,
       allChannels: [],
+      // 用于标记是否处于编辑状态
       isEdit: false
     }
   },
   methods: {
+    // 获取所有频道列表并处理数据
     async getAllChannels () {
       const { data } = await getAllChannels()
+
       this.allChannels = data.data.channels
     },
+    // 点击我的频道
     onClickMyChannel (channel, index) {
+      // 边缘情况的判断
       if (this.isEdit && channel.name !== '推荐') {
-        return this.$emit('del-mychannel', channel.id)
+        // 删除
+        return this.$emit('del-mychanel', channel.id)
       }
+
       if (!this.isEdit) {
+        // 切换
         this.isShow = false
-        this.$emit('channge-active', index)
+
+        this.$emit('change-active', index)
       }
     },
-    addMyChannel (myChannels) {
-      this.$emit('add-mychannel', { ...myChannels })
+    // 添加频道
+    addMyChannel (myChannel) {
+      this.$emit('add-mychannel', { ...myChannel })
     }
   },
   computed: {
     recommendChannels () {
-      return this.allChannels.filter((item) => {
-        return !this.myChannels.find((i) => i.id === item.id)
-      })
+      // 在所有的频道中 减去 我的频道
+      return this.allChannels.filter(
+        // 在所有的频道中 筛选掉 我的频道
+        (item) => !this.myChannels.find((i) => i.id === item.id)
+      )
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
-
+<style scoped lang="less">
+// 高亮频道
 .active-channel {
-  color: red;
+  :deep(.van-grid-item__text) {
+    color: red;
+  }
 }
 
 .popupMain {
   padding-top: 100px;
+
+  // 按钮的样式
   .edit-btn {
     color: red;
     padding: 0 30px;
-    height: 40px;
+    height: 48px;
     border: 0.02667rem solid red;
   }
+
+  :deep(.van-grid-item__content) {
+    width: 175px;
+    height: 86px;
+    background-color: #f4f5f6;
+  }
+  // 我的频道的样式
   .my-channel {
     :deep(.van-grid-item__content) {
       position: relative;
-      height: 41px;
-      background-color: #f4f5f6;
+
       .van-grid-item__icon-wrapper {
         position: absolute;
         top: 0;
         right: 0;
+
         .van-icon-cross {
           position: absolute;
-          font-size: 15px;
           top: 0;
           right: 0;
           transform: translate(20%, -35%);
-          border: 1px solid #000;
+          border: 0.02667rem solid #000;
           border-radius: 50%;
           text-align: center;
-          line-height: 25px;
+          line-height: 0.32rem;
         }
       }
     }
   }
+
   // 推荐频道的样式
   .recommend-channel {
     // 推荐频道加号样式
     :deep(.van-grid-item__content) {
       flex-direction: row;
-      height: 41px;
-      background-color: #f4f5f6;
-      font-size: 12px;
+
       .van-grid-item__icon {
-        font-size: 30px;
+        font-size: 0.5rem;
       }
 
       .van-grid-item__text {
