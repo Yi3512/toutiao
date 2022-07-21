@@ -10,6 +10,10 @@ const routes = [
     component: () => import('@/views/Login')
   },
   {
+    path: '/article',
+    component: () => import('@/views/Article')
+  },
+  {
     path: '/',
     component: () => import('@/views/Layout'),
     redirect: '/ ',

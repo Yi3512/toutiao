@@ -74,16 +74,21 @@ export default {
     },
     // 搜索
     onSearch (item) {
+      // item 为当前搜索的值
       this.keywords = item
-
+      console.log(item)
       console.log('正在搜索')
+      //  去历史记录数组里找当前的字符串 有为0 没有值为-1
       const index = this.searchHistorlist.indexOf(item)
-      // console.log(index)
+      console.log(index)
       if (index !== -1) {
+        // 当index不是-1时 删除当前index内容 去重
         this.searchHistorlist.splice(index, 1)
       }
+      // 把item添加到数组第一位置
       this.searchHistorlist.unshift(item)
       console.log(this.searchHistorlist)
+      // 存储到本地
       this.$store.commit('setSearchHistory', this.searchHistorlist)
       // 显示搜索结果
       this.isShowSearchResult = true

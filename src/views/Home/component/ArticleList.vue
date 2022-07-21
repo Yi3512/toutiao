@@ -65,6 +65,7 @@ export default {
         this.pre_timestamp = data.data.pre_timestamp
 
         this.articles = data.data.results
+        console.log(this.articles)
       } catch (error) {
         // 1. 获取状态码
         const status = error.response.status
