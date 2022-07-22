@@ -33,3 +33,28 @@ export const getUserInfo = () => {
     url: '/v1_0/user'
   })
 }
+/**
+ * 添加关注用户
+ * @param {string} target 被关注的用户id
+ * @returns Promise
+ */
+export const addUserFollowings = (target) => {
+  return request({
+    method: 'POST',
+    url: '/v1_0/user/followings',
+    data: {
+      target
+    }
+  })
+}
+/**
+ * 取消关注用户
+ * @param {string} target 被关注的用户id
+ * @returns Promise
+ */
+export const dleUserFollowings = (target) => {
+  return request({
+    method: 'DELETE',
+    url: `/v1_0/user/followings/${target}`
+  })
+}

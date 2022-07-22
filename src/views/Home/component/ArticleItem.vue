@@ -1,11 +1,10 @@
 <template>
-  <div>
+  <div @click="toArticle">
     <!-- 渲染无图片 -->
     <van-cell
       v-if="articleInfo.cover.type === 0"
       :title="articleInfo.title"
       :label="articleDesc"
-      @click="$router.push('/article')"
     />
 
     <!-- 渲染一张图片 -->
@@ -13,7 +12,6 @@
       v-if="articleInfo.cover.type === 1"
       :title="articleInfo.title"
       :label="articleDesc"
-      @click="$router.push('/article')"
     >
       <van-image
         width="3rem"
@@ -23,11 +21,7 @@
     </van-cell>
 
     <!-- 渲染三张图片 -->
-    <van-cell
-      @click="$router.push('/article')"
-      v-if="articleInfo.cover.type === 3"
-      :title="articleInfo.title"
-    >
+    <van-cell v-if="articleInfo.cover.type === 3" :title="articleInfo.title">
       <template #label>
         <!-- 图片 -->
         <div>
@@ -50,10 +44,21 @@
 // 引入utils
 import dayjs from '@/utils/dayjs'
 export default {
+  name: 'AItem',
   props: {
     articleInfo: {
       type: Object,
       required: true
+    }
+  },
+  created () {
+  },
+  methods: {
+    toArticle () {
+      const res = this.articleInfo
+      console.log(res, 123)
+      this.$store.commit('setAutId', res)
+      this.$router.push('/article')
     }
   },
   computed: {

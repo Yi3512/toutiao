@@ -6,7 +6,7 @@ module.exports = {
   extends: ['plugin:vue/essential', '@vue/standard'],
   parserOptions: {
     parser: '@babel/eslint-parser',
-    requireConfig: false
+    requireConfigFile: false
   },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
