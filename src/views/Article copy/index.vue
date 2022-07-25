@@ -1,6 +1,5 @@
 <template>
   <div style="padding-top: 46px">
-    <!-- 数据没有加载完成显示 -->
     <div v-if="articlelist.length === 0" class="loading-wrap">
       <van-loading color="#3296fa" vertical>加载中</van-loading>
     </div>
@@ -63,7 +62,7 @@
         <CommentList
           :source="articlelist.art_id"
           @istotalCount="totalCount = $event.total_count"
-          :AddList="AddList"
+          @ListAdd="ListAdd"
         />
       </div>
       <!-- 底部区域 -->
@@ -167,8 +166,15 @@ export default {
     this.getArticleDetail()
     this.ArticleTime()
     this.getUserInfo()
+    this.ListAdd()
+    // console.log(this.articleId, '文章id')
   },
   methods: {
+    ListAdd (item) {
+      // const { results } = item
+      this.AddList = item.results
+      // console.log(this.AddList, 133332)
+    },
     // 弹出
     showPopup () {
       this.show = true
@@ -223,16 +229,22 @@ export default {
         forbidClick: true,
         duation: 0
       })
-      const { data } = await addComment({
-        target: this.articlelist.art_id, // 评论的目标id（评论文章即为文章id，对评论进行回复则为评论id）
-        content: this.message // 评论内容
-        // art_id // 文章id，对评论内容发表回复时，需要传递此参数，表明所属文章id。对文章进行评论，不要传此参数。
-      })
-      console.log(data, 1111)
-      this.AddList.unshift(data.data.new_obj)
-      this.message = ''
-      this.show = false
-      // console.log(data)
+      try {
+        const { data } = await addComment({
+          target: this.articlelist.art_id, // 评论的目标id（评论文章即为文章id，对评论进行回复则为评论id）
+          content: this.message // 评论内容
+          // art_id // 文章id，对评论内容发表回复时，需要传递此参数，表明所属文章id。对文章进行评论，不要传此参数。
+        })
+        // console.log(data, 123)
+        this.show = false
+        this.$toast.success('发布成功')
+        this.message = ''
+        // console.log(data)
+        this.AddList.unshift(data.data.new_obj)
+        console.log(this.AddList, 132)
+      } catch (e) {
+        this.$toast.fail('发布失败')
+      }
     },
     // 点赞
     async onLikings () {
@@ -304,7 +316,7 @@ export default {
   border: none;
   margin-right: 20px;
 }
-.van-popup--bottom {
+:deep(.van-popup--bottom) {
   display: flex;
   align-items: center;
   padding: 32px 0 32px 32px;
