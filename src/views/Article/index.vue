@@ -120,6 +120,7 @@
 </template>
 
 <script>
+import { ImagePreview } from 'vant'
 import CommentList from './components/CommentList.vue'
 import '../../assets/style/github-markdown.css'
 import dayjs from '@/utils/dayjs'
@@ -137,7 +138,10 @@ import {
   addComment
 } from '@/api'
 export default {
-  components: { CommentList },
+  components: {
+    CommentList,
+    [ImagePreview.Component.name]: ImagePreview.Component
+  },
   data () {
     return {
       // 用户
